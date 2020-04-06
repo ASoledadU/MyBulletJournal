@@ -2,6 +2,7 @@
 using Owin;
 
 [assembly: OwinStartupAttribute(typeof(MyBulletJournal.Startup))]
+
 namespace MyBulletJournal
 {
     public partial class Startup
