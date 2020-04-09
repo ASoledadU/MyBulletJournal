@@ -13,261 +13,288 @@
  * Globalize v1.1.1 2016-02-04T12:01Z Released under the MIT license
  * http://git.io/TrdQbw
  */
-(function (root, factory) {
-    // UMD returnExports
-    if (typeof define === "function" && define.amd) {
-        // AMD
-        define([
-            "cldr",
-            "../globalize",
-            "./number",
-            "./plural"
-        ], factory);
-    } else if (typeof exports === "object") {
-        // Node, CommonJS
-        module.exports = factory(require("cldrjs"), require("globalize"));
-    } else {
-        // Extend global
-        factory(root.Cldr, root.Globalize);
-    }
-}(this, function (Cldr, Globalize) {
-    var formatMessage = Globalize._formatMessage,
-        runtimeBind = Globalize._runtimeBind,
-        validateParameterPresence = Globalize._validateParameterPresence,
-        validateParameterTypePlainObject = Globalize._validateParameterTypePlainObject,
-        validateParameterTypeNumber = Globalize._validateParameterTypeNumber,
-        validateParameterTypeString = Globalize._validateParameterTypeString;
+(function( root, factory ) {
 
-    /**
-     * format( value, numberFormatter, pluralGenerator, unitProperies )
-     *
-     * @value [Number]
-     *
-     * @numberFormatter [Object]: A numberFormatter from Globalize.numberFormatter.
-     *
-     * @pluralGenerator [Object]: A pluralGenerator from Globalize.pluralGenerator.
-     *
-     * @unitProperies [Object]: localized unit data from cldr.
-     *
-     * Format units such as seconds, minutes, days, weeks, etc.
-     *
-     * OBS:
-     *
-     * Unit Sequences are not implemented.
-     * http://www.unicode.org/reports/tr35/tr35-35/tr35-general.html#Unit_Sequences
-     *
-     * Duration Unit (for composed time unit durations) is not implemented.
-     * http://www.unicode.org/reports/tr35/tr35-35/tr35-general.html#durationUnit
-     */
-    var unitFormat = function (value, numberFormatter, pluralGenerator, unitProperties) {
-        var compoundUnitPattern = unitProperties.compoundUnitPattern, dividend, dividendProperties,
-            formattedValue, divisor, divisorProperties, message, pluralValue;
+	// UMD returnExports
+	if ( typeof define === "function" && define.amd ) {
 
-        unitProperties = unitProperties.unitProperties;
-        formattedValue = numberFormatter(value);
-        pluralValue = pluralGenerator(value);
+		// AMD
+		define([
+			"cldr",
+			"../globalize",
+			"./number",
+			"./plural"
+		], factory );
+	} else if ( typeof exports === "object" ) {
 
-        // computed compound unit, eg. "megabyte-per-second".
-        if (unitProperties instanceof Array) {
-            dividendProperties = unitProperties[0];
-            divisorProperties = unitProperties[1];
+		// Node, CommonJS
+		module.exports = factory( require( "cldrjs" ), require( "globalize" ) );
+	} else {
 
-            dividend = formatMessage(dividendProperties[pluralValue], [value]);
-            divisor = formatMessage(divisorProperties.one, [""]).trim();
+		// Extend global
+		factory( root.Cldr, root.Globalize );
+	}
+}(this, function( Cldr, Globalize ) {
 
-            return formatMessage(compoundUnitPattern, [dividend, divisor]);
-        }
+var formatMessage = Globalize._formatMessage,
+	runtimeBind = Globalize._runtimeBind,
+	validateParameterPresence = Globalize._validateParameterPresence,
+	validateParameterTypePlainObject = Globalize._validateParameterTypePlainObject,
+	validateParameterTypeNumber = Globalize._validateParameterTypeNumber,
+	validateParameterTypeString = Globalize._validateParameterTypeString;
 
-        message = unitProperties[pluralValue];
 
-        return formatMessage(message, [formattedValue]);
-    };
+/**
+ * format( value, numberFormatter, pluralGenerator, unitProperies )
+ *
+ * @value [Number]
+ *
+ * @numberFormatter [Object]: A numberFormatter from Globalize.numberFormatter.
+ *
+ * @pluralGenerator [Object]: A pluralGenerator from Globalize.pluralGenerator.
+ *
+ * @unitProperies [Object]: localized unit data from cldr.
+ *
+ * Format units such as seconds, minutes, days, weeks, etc.
+ *
+ * OBS:
+ *
+ * Unit Sequences are not implemented.
+ * http://www.unicode.org/reports/tr35/tr35-35/tr35-general.html#Unit_Sequences
+ *
+ * Duration Unit (for composed time unit durations) is not implemented.
+ * http://www.unicode.org/reports/tr35/tr35-35/tr35-general.html#durationUnit
+ */
+var unitFormat = function( value, numberFormatter, pluralGenerator, unitProperties ) {
+	var compoundUnitPattern = unitProperties.compoundUnitPattern, dividend, dividendProperties,
+		formattedValue, divisor, divisorProperties, message, pluralValue;
 
-    var unitFormatterFn = function (numberFormatter, pluralGenerator, unitProperties) {
-        return function unitFormatter(value) {
-            validateParameterPresence(value, "value");
-            validateParameterTypeNumber(value, "value");
+	unitProperties = unitProperties.unitProperties;
+	formattedValue = numberFormatter( value );
+	pluralValue = pluralGenerator( value );
 
-            return unitFormat(value, numberFormatter, pluralGenerator, unitProperties);
-        };
-    };
+	// computed compound unit, eg. "megabyte-per-second".
+	if ( unitProperties instanceof Array ) {
+		dividendProperties = unitProperties[ 0 ];
+		divisorProperties = unitProperties[ 1 ];
 
-    /**
-     * categories()
-     *
-     * Return all unit categories.
-     */
-    var unitCategories = ["acceleration", "angle", "area", "digital", "duration", "length", "mass", "power",
-        "pressure", "speed", "temperature", "volume"];
+		dividend = formatMessage( dividendProperties[ pluralValue ], [ value ] );
+		divisor = formatMessage( divisorProperties.one, [ "" ] ).trim();
 
-    function stripPluralGarbage(data) {
-        var aux, pluralCount;
+		return formatMessage( compoundUnitPattern, [ dividend, divisor ] );
+	}
 
-        if (data) {
-            aux = {};
-            for (pluralCount in data) {
-                aux[pluralCount.replace(/unitPattern-count-/, "")] = data[pluralCount];
-            }
-        }
+	message = unitProperties[ pluralValue ];
 
-        return aux;
-    }
+	return formatMessage( message, [ formattedValue ] );
+};
 
-    /**
-     * get( unit, form, cldr )
-     *
-     * @unit [String] The full type-unit name (eg. duration-second), or the short unit name
-     * (eg. second).
-     *
-     * @form [String] A string describing the form of the unit representation (eg. long,
-     * short, narrow).
-     *
-     * @cldr [Cldr instance].
-     *
-     * Return the plural map of a unit, eg: "second"
-     * { "one": "{0} second",
-     *   "other": "{0} seconds" }
-     * }
-     *
-     * Or the Array of plural maps of a compound-unit, eg: "foot-per-second"
-     * [ { "one": "{0} foot",
-     *     "other": "{0} feet" },
-     *   { "one": "{0} second",
-     *     "other": "{0} seconds" } ]
-     *
-     * Uses the precomputed form of a compound-unit if available, eg: "mile-per-hour"
-     * { "displayName": "miles per hour",
-     *    "unitPattern-count-one": "{0} mile per hour",
-     *    "unitPattern-count-other": "{0} miles per hour"
-     * },
-     *
-     * Also supports "/" instead of "-per-", eg. "foot/second", using the precomputed form if
-     * available.
-     *
-     * Or the Array of plural maps of a compound-unit, eg: "foot-per-second"
-     * [ { "one": "{0} foot",
-     *     "other": "{0} feet" },
-     *   { "one": "{0} second",
-     *     "other": "{0} seconds" } ]
-     *
-     * Or undefined in case the unit (or a unit of the compound-unit) doesn't exist.
-     */
-    var get = function (unit, form, cldr) {
-        var ret;
 
-        // Ensure that we get the 'precomputed' form, if present.
-        unit = unit.replace(/\//, "-per-");
 
-        // Get unit or <category>-unit (eg. "duration-second").
-        [""].concat(unitCategories).some(function (category) {
-            return ret = cldr.main([
-                "units",
-                form,
-                category.length ? category + "-" + unit : unit
-            ]);
-        });
 
-        // Rename keys s/unitPattern-count-//g.
-        ret = stripPluralGarbage(ret);
+var unitFormatterFn = function( numberFormatter, pluralGenerator, unitProperties ) {
+	return function unitFormatter( value ) {
+		validateParameterPresence( value, "value" );
+		validateParameterTypeNumber( value, "value" );
 
-        // Compound Unit, eg. "foot-per-second" or "foot/second".
-        if (!ret && (/-per-/).test(unit)) {
-            // "Some units already have 'precomputed' forms, such as kilometer-per-hour;
-            // where such units exist, they should be used in preference" UTS#35.
-            // Note that precomputed form has already been handled above (!ret).
+		return unitFormat( value, numberFormatter, pluralGenerator, unitProperties );
+	};
 
-            // Get both recursively.
-            unit = unit.split("-per-");
-            ret = unit.map(function (unit) {
-                return get(unit, form, cldr);
-            });
-            if (!ret[0] || !ret[1]) {
-                return;
-            }
-        }
+};
 
-        return ret;
-    };
 
-    var unitGet = get;
 
-    /**
-     * properties( unit, form, cldr )
-     *
-     * @unit [String] The full type-unit name (eg. duration-second), or the short unit name
-     * (eg. second).
-     *
-     * @form [String] A string describing the form of the unit representation (eg. long,
-     * short, narrow).
-     *
-     * @cldr [Cldr instance].
-     */
-    var unitProperties = function (unit, form, cldr) {
-        var compoundUnitPattern, unitProperties;
 
-        compoundUnitPattern = cldr.main(["units", form, "per/compoundUnitPattern"]);
-        unitProperties = unitGet(unit, form, cldr);
+/**
+ * categories()
+ *
+ * Return all unit categories.
+ */
+var unitCategories = [ "acceleration", "angle", "area", "digital", "duration", "length", "mass", "power",
+"pressure", "speed", "temperature", "volume" ];
 
-        return {
-            compoundUnitPattern: compoundUnitPattern,
-            unitProperties: unitProperties
-        };
-    };
 
-    /**
-     * Globalize.formatUnit( value, unit, options )
-     *
-     * @value [Number]
-     *
-     * @unit [String]: The unit (e.g "second", "day", "year")
-     *
-     * @options [Object]
-     * - form: [String] "long", "short" (default), or "narrow".
-     *
-     * Format units such as seconds, minutes, days, weeks, etc.
-     */
-    Globalize.formatUnit =
-        Globalize.prototype.formatUnit = function (value, unit, options) {
-            validateParameterPresence(value, "value");
-            validateParameterTypeNumber(value, "value");
 
-            return this.unitFormatter(unit, options)(value);
-        };
 
-    /**
-     * Globalize.unitFormatter( unit, options )
-     *
-     * @unit [String]: The unit (e.g "second", "day", "year")
-     *
-     * @options [Object]
-     * - form: [String] "long", "short" (default), or "narrow".
-     *
-     * - numberFormatter: [Function] a number formatter function. Defaults to Globalize
-     *   `.numberFormatter()` for the current locale using the default options.
-     */
-    Globalize.unitFormatter =
-        Globalize.prototype.unitFormatter = function (unit, options) {
-            var args, form, numberFormatter, pluralGenerator, returnFn, properties;
+function stripPluralGarbage( data ) {
+	var aux, pluralCount;
 
-            validateParameterPresence(unit, "unit");
-            validateParameterTypeString(unit, "unit");
+	if ( data ) {
+		aux = {};
+		for ( pluralCount in data ) {
+			aux[ pluralCount.replace( /unitPattern-count-/, "" ) ] = data[ pluralCount ];
+		}
+	}
 
-            validateParameterTypePlainObject(options, "options");
+	return aux;
+}
 
-            options = options || {};
+/**
+ * get( unit, form, cldr )
+ *
+ * @unit [String] The full type-unit name (eg. duration-second), or the short unit name
+ * (eg. second).
+ *
+ * @form [String] A string describing the form of the unit representation (eg. long,
+ * short, narrow).
+ *
+ * @cldr [Cldr instance].
+ *
+ * Return the plural map of a unit, eg: "second"
+ * { "one": "{0} second",
+ *   "other": "{0} seconds" }
+ * }
+ *
+ * Or the Array of plural maps of a compound-unit, eg: "foot-per-second"
+ * [ { "one": "{0} foot",
+ *     "other": "{0} feet" },
+ *   { "one": "{0} second",
+ *     "other": "{0} seconds" } ]
+ *
+ * Uses the precomputed form of a compound-unit if available, eg: "mile-per-hour"
+ * { "displayName": "miles per hour",
+ *    "unitPattern-count-one": "{0} mile per hour",
+ *    "unitPattern-count-other": "{0} miles per hour"
+ * },
+ *
+ * Also supports "/" instead of "-per-", eg. "foot/second", using the precomputed form if
+ * available.
+ *
+ * Or the Array of plural maps of a compound-unit, eg: "foot-per-second"
+ * [ { "one": "{0} foot",
+ *     "other": "{0} feet" },
+ *   { "one": "{0} second",
+ *     "other": "{0} seconds" } ]
+ *
+ * Or undefined in case the unit (or a unit of the compound-unit) doesn't exist.
+ */
+var get = function( unit, form, cldr ) {
+	var ret;
 
-            args = [unit, options];
-            form = options.form || "long";
-            properties = unitProperties(unit, form, this.cldr);
+	// Ensure that we get the 'precomputed' form, if present.
+	unit = unit.replace( /\//, "-per-" );
 
-            numberFormatter = options.numberFormatter || this.numberFormatter();
-            pluralGenerator = this.pluralGenerator();
-            returnFn = unitFormatterFn(numberFormatter, pluralGenerator, properties);
+	// Get unit or <category>-unit (eg. "duration-second").
+	[ "" ].concat( unitCategories ).some(function( category ) {
+		return ret = cldr.main([
+			"units",
+			form,
+			category.length ? category + "-" + unit : unit
+		]);
+	});
 
-            runtimeBind(args, this.cldr, returnFn, [numberFormatter, pluralGenerator, properties]);
+	// Rename keys s/unitPattern-count-//g.
+	ret = stripPluralGarbage( ret );
 
-            return returnFn;
-        };
+	// Compound Unit, eg. "foot-per-second" or "foot/second".
+	if ( !ret && ( /-per-/ ).test( unit ) ) {
 
-    return Globalize;
+		// "Some units already have 'precomputed' forms, such as kilometer-per-hour;
+		// where such units exist, they should be used in preference" UTS#35.
+		// Note that precomputed form has already been handled above (!ret).
+
+		// Get both recursively.
+		unit = unit.split( "-per-" );
+		ret = unit.map(function( unit ) {
+			return get( unit, form, cldr );
+		});
+		if ( !ret[ 0 ] || !ret[ 1 ] ) {
+			return;
+		}
+	}
+
+	return ret;
+};
+
+var unitGet = get;
+
+
+
+
+/**
+ * properties( unit, form, cldr )
+ *
+ * @unit [String] The full type-unit name (eg. duration-second), or the short unit name
+ * (eg. second).
+ *
+ * @form [String] A string describing the form of the unit representation (eg. long,
+ * short, narrow).
+ *
+ * @cldr [Cldr instance].
+ */
+var unitProperties = function( unit, form, cldr ) {
+	var compoundUnitPattern, unitProperties;
+
+	compoundUnitPattern = cldr.main( [ "units", form, "per/compoundUnitPattern" ] );
+	unitProperties = unitGet( unit, form, cldr );
+
+	return {
+		compoundUnitPattern: compoundUnitPattern,
+		unitProperties: unitProperties
+	};
+};
+
+
+
+
+/**
+ * Globalize.formatUnit( value, unit, options )
+ *
+ * @value [Number]
+ *
+ * @unit [String]: The unit (e.g "second", "day", "year")
+ *
+ * @options [Object]
+ * - form: [String] "long", "short" (default), or "narrow".
+ *
+ * Format units such as seconds, minutes, days, weeks, etc.
+ */
+Globalize.formatUnit =
+Globalize.prototype.formatUnit = function( value, unit, options ) {
+	validateParameterPresence( value, "value" );
+	validateParameterTypeNumber( value, "value" );
+
+	return this.unitFormatter( unit, options )( value );
+};
+
+/**
+ * Globalize.unitFormatter( unit, options )
+ *
+ * @unit [String]: The unit (e.g "second", "day", "year")
+ *
+ * @options [Object]
+ * - form: [String] "long", "short" (default), or "narrow".
+ *
+ * - numberFormatter: [Function] a number formatter function. Defaults to Globalize
+ *   `.numberFormatter()` for the current locale using the default options.
+ */
+Globalize.unitFormatter =
+Globalize.prototype.unitFormatter = function( unit, options ) {
+	var args, form, numberFormatter, pluralGenerator, returnFn, properties;
+
+	validateParameterPresence( unit, "unit" );
+	validateParameterTypeString( unit, "unit" );
+
+	validateParameterTypePlainObject( options, "options" );
+
+	options = options || {};
+
+	args = [ unit, options ];
+	form = options.form || "long";
+	properties = unitProperties( unit, form, this.cldr );
+
+	numberFormatter = options.numberFormatter || this.numberFormatter();
+	pluralGenerator = this.pluralGenerator();
+	returnFn = unitFormatterFn( numberFormatter, pluralGenerator, properties );
+
+	runtimeBind( args, this.cldr, returnFn, [ numberFormatter, pluralGenerator, properties ] );
+
+	return returnFn;
+};
+
+return Globalize;
+
+
+
+
 }));

@@ -2,13 +2,25 @@
     ViewBag.Title = "Contact";
 }
 <h2>@ViewBag.Title.</h2>
-<h5>@ViewBag.Message</h5>
 
-<address>
-    301 N Main St<br />
-    Water Valley, MS 38965<br />
-</address>
 
-<address>
-    <strong>Support:</strong>   <a href="mailto:aunda@basecampcodingacademy.org">aunda@basecampcodingacademy.org</a><br />
-</address>
+<div class="card mb-3" style="max-width: 540px;">
+    <div class="row no-gutters">
+        <div class="col-md-4">
+            <img src="~/Images/contact.jfif" class="card-img" alt="journal">
+        </div>
+        <div class="col-md-8">
+            <div class="card-body">
+                <p class="card-text">
+                    @ViewBag.Message
+                                 <address>
+                                    301 N Main St<br />
+                                    Water Valley, MS 38965<br /><br />
+                                    <strong>Support:</strong>
+                                    <a href="mailto:aunda@basecampcodingacademy.org">aunda@basecampcodingacademy.org</a><br />
+                                </address>
+                            </p>
+            </div>
+        </div>
+    </div>
+</div>

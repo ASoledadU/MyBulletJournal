@@ -23,10 +23,8 @@ namespace MyBulletJournal.Controllers
         public ActionResult About()
         {
             ViewBag.Message = "“My Bullet Journal” is a web application that is dedicated to " +
-                "fulfilling all your simple organization needs. With customization, you are able" +
-                " to put the MY in “My Bullet Journal”! If you have any questions regarding your " +
-                "journal please feel free to go to our contact page to communicate with our dedicated " +
-                "team of specialists.";
+                "fulfilling your simple organization needs. With customization, you are able" +
+                " to put the MY in “My Bullet Journal”!";
 
             return View();
         }
@@ -40,6 +38,11 @@ namespace MyBulletJournal.Controllers
         }
 
         public ActionResult Key()
+        {
+            return View();
+        }
+
+        public ActionResult Calendar()
         {
             return View();
         }

@@ -9,7 +9,6 @@ namespace MyBulletJournal.Models
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
-
         public string HomeTown { get; set; }
         public System.DateTime? BirthDate { get; set; }
     }
@@ -35,7 +34,6 @@ namespace MyBulletJournal.Models
         [Required]
         [Display(Name = "Code")]
         public string Code { get; set; }
-
         public string ReturnUrl { get; set; }
 
         [Display(Name = "Remember this browser?")]
