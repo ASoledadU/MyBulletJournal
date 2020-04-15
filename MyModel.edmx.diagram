@@ -6,6 +6,7 @@
     <edmx:Diagrams>
       <Diagram DiagramId="fa24746c4fe74a66805d58a8c803f9fb" Name="Diagram1">
         <EntityTypeShape EntityType="myJournalDatabaseModel.Event" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="myJournalDatabaseModel.JournalE" Width="1.5" PointX="3.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

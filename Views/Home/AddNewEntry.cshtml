@@ -1,0 +1,49 @@
+﻿
+@{
+    ViewBag.Title = "Add New Entry";
+}
+
+<div class="container">
+    <h2 class="text-center">Add New Entry</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <form id="AddNewEntry" method="post">
+                <label>Title</label><br />
+                <input type="text" id="JournalTitle" name="JournalTitle" class="form-control" /><br />
+
+                <label>Body</label><br />
+                <input type="text" id="Body" name="Body" class="form-control" /><br />
+                <button class="btn btn-danger">Add</button>
+            </form>
+        </div>
+    </div>
+</div><br /><br /><br /><br />
+@* ########### Display All Product ############## *@
+
+
+
+    @* ###########
+        Pass Add New Product Form Data From View to Controller
+        For Save It In Database
+    ############## *@
+
+<script>
+    function AjaxPost(formData) {
+        var ajaxConfig = {
+            type: "POST",
+            url: "/Home/SaveData",
+            data: new FormData(formData),
+            success: function (result) {
+                alert(result);
+                window.location.href = "/Views/AddNewEntry";
+            }
+        }
+        if ($(formData).attr('enctype') == "multipart/form-data") {
+            ajaxConfig["contentType"] = false;
+            ajaxConfig["processData"] = false;
+        }
+        $.ajax(ajaxConfig);
+        return false;
+    }
+</script>
+
