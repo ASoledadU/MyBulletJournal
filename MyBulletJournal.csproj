@@ -241,7 +241,13 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Images\contact.jfif" />
+    <Content Include="Images\green.jpg" />
     <Content Include="Images\journal.jfif" />
+    <Content Include="Images\pink.jpg" />
+    <Content Include="Images\purple.jpg" />
+    <Content Include="Images\red.jpg" />
+    <Content Include="Images\yellow.jpg" />
+    <Content Include="Images\yellows.jpg" />
     <Content Include="MyModel.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>MyModel.edmx</DependentUpon>
@@ -507,9 +513,7 @@
     <Content Include="Scripts\popper.js.map" />
     <Content Include="Scripts\popper-utils.min.js.map" />
     <Content Include="Scripts\popper-utils.js.map" />
-    <Content Include="Views\Home\Key.cshtml" />
     <Content Include="Views\Home\Calendar.cshtml" />
-    <Content Include="Views\Home\AddNewEntry.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
